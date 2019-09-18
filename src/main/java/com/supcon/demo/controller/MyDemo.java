@@ -5,4 +5,8 @@ package com.supcon.demo.controller;
  * @date 2019/09/18
  */
 public class MyDemo {
+
+    public static void main(String[] args) {
+
+    }
 }

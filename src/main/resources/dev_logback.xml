@@ -1,0 +1,73 @@
+<!-- Logback configuration. See http://logback.qos.ch/manual/index.html -->
+<configuration scan="true" scanPeriod="10 seconds">
+    <!-- Simple file output -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- encoder defaults to ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <pattern>
+                [ %-5level] [%date{yyyy-MM-dd HH:mm:ss}] %logger{96} [%line] - %msg%n
+            </pattern>
+            <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily 配置日志所生成的目录以及生成文件名的规则 -->
+            <fileNamePattern>log\wuchenxuan-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- or whenever the file size reaches 64 MB -->
+                <maxFileSize>64MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <!-- Safely log to the same file from multiple JVMs. Degrades performance! -->
+        <prudent>true</prudent>
+    </appender>
+    <!-- Console output -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoder defaults to ch.qos.logback.classic.encoder.PatternLayoutEncoder -->
+        <encoder>
+            <pattern>
+                [ %-5level] [%date{yyyy-MM-dd HH:mm:ss}] [%thread] %logger{96} [%line] - %msg%n
+            </pattern>
+            <charset>UTF-8</charset> <!-- 此处设置字符集 -->
+        </encoder>
+        <!-- Only log level WARN and above -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+    </appender>
+    <!--请修改下面配置信息为你自己的-->
+    <appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
+        <smtpHost>smtp.qq.com</smtpHost>
+        <username>xxx@qq.com</username>
+        <password>kjjgporeysxzdhfe</password>
+        <smtpPort>25</smtpPort>
+        <to>xxx@qq.com</to>
+        <from>xxx@qq.com</from>
+        <subject>demo项目出现异常 %logger{20} - %m</subject>
+        <!--邮件收到的日志格式HTMLLayout-->
+        <!--<layout class="ch.qos.logback.classic.html.HTMLLayout"> -->
+        <!-- 邮件收到的日志格式PatternLayout-->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <!--<pattern>%d {HH:mm:ss.SSS} [%thread] %-5level %logger {1}  -%msg%n </pattern>-->
+            <pattern>%date %-5level [%thread] %logger{35} - %msg%n</pattern>
+        </layout>
+        <!--采用异步方式发送true-->
+        <asynchronousSending>true</asynchronousSending>
+    </appender>
+    <root level="ERROR">
+        <appender-ref ref="EMAIL"/>
+    </root>
+    <!-- Enable FILE and STDOUT appenders for all log messages.
+         By default, only log at level INFO and above. -->
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+    <!--For loggers in the these namespaces, log at all levels.-->
+    <logger name="pedestal" level="ALL"/>
+    <logger name="hammock-cafe" level="ALL"/>
+    <logger name="user" level="ALL"/>
+</configuration>

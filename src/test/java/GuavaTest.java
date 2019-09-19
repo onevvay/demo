@@ -1,10 +1,17 @@
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
+import com.supcon.demo.entity.User;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author oneway
@@ -21,13 +28,6 @@ public class GuavaTest {
     private static final CharMatcher CHAR_MATCHER_ANY = CharMatcher.any();
 
     public static void main(String[] args) {
-        // 一对多的Map
-        Multimap<String, String> map = ArrayListMultimap.create();
-        map.put("1", "abc");
-        map.put("1", "qqq");
-        List<String> collection = (List<String>) map.get("1");
-        System.out.println(collection);
-
         // 连接数组为字符串
         String join = joiner.join(Lists.newArrayList("a", null, "b"));
         System.out.println("join = " + join);
@@ -69,7 +69,42 @@ public class GuavaTest {
         multiset.add("d");
         System.out.println(multiset.size());
         System.out.println(multiset.count("a"));
+
+
+        // 一对多的Map
+        Multimap<String, String> map = ArrayListMultimap.create();
+        map.put("1", "abc");
+        map.put("1", "qqq");
+        List<String> collection = (List<String>) map.get("1");
+        System.out.println(collection);
     }
+
+
+    private static final CacheLoader<Long, User> USER_CACHE_LOADER = new CacheLoader<Long, User>() {
+        @Override
+        public User load(Long key) throws Exception {
+
+            // 模拟从数据库/Redis/缓存中加载数据
+            User user = new User();
+            user.setId(key);
+            user.setName(Thread.currentThread().getName()
+                    + "-" + new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date())
+                    + "-" + key);
+
+            System.out.println("load: " + user);
+
+            return user;
+        }
+    };
+
+    // 定义缓存的策略 提供对外访问缓存
+    // LoadingCache<Long, User>
+    private static final Cache<Long, User> USER_LOADING_CACHE = CacheBuilder.newBuilder()
+            .expireAfterAccess(2, TimeUnit.SECONDS)
+            .expireAfterWrite(2, TimeUnit.SECONDS)
+            .refreshAfterWrite(3, TimeUnit.SECONDS)
+            .maximumSize(10000L)
+            .build();
 
 }
 
